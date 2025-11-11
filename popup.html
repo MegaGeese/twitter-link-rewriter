@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Twitter Link Rewriter Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      max-height: 600px;
+      overflow-y: auto;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #333;
+      background: #f5f5f5;
+    }
+
+    .header {
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1da1f2;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .section {
+      background: white;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .option {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .option:hover {
+      background: #f0f0f0;
+    }
+
+    .option input[type="radio"] {
+      margin-top: 2px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    .option-label {
+      flex: 1;
+    }
+
+    .option-title {
+      font-weight: 500;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .option-description {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .input-group {
+      margin-top: 8px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .input-group input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+      font-family: monospace;
+    }
+
+    .input-group input[type="text"]:focus {
+      outline: none;
+      border-color: #1da1f2;
+    }
+
+    .save-button {
+      width: 100%;
+      padding: 10px;
+      background: #1da1f2;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .save-button:hover {
+      background: #1a91da;
+    }
+
+    .save-button:active {
+      background: #1780c2;
+    }
+
+    .save-button.saved {
+      background: #17bf63;
+    }
+
+    .footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+      font-size: 11px;
+      color: #999;
+      text-align: center;
+    }
+
+    /* Custom rules styles */
+    .add-rule-button {
+      float: right;
+      padding: 4px 10px;
+      background: #1da1f2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .add-rule-button:hover {
+      background: #1a91da;
+    }
+
+    .rule-item {
+      background: #f8f8f8;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .rule-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .rule-name {
+      flex: 1;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .rule-toggle {
+      margin-right: 8px;
+    }
+
+    .rule-delete {
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 3px;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+
+    .rule-delete:hover {
+      background: #c82333;
+    }
+
+    .rule-pattern, .rule-replacement {
+      font-size: 11px;
+      font-family: 'Consolas', 'Monaco', monospace;
+      color: #555;
+      word-break: break-all;
+      margin-bottom: 4px;
+    }
+
+    .rule-pattern strong, .rule-replacement strong {
+      color: #333;
+      font-family: inherit;
+    }
+
+    .rule-form {
+      background: #f8f8f8;
+      border: 2px solid #1da1f2;
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 8px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 3px;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #1da1f2;
+    }
+
+    .form-buttons {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .form-buttons button {
+      flex: 1;
+      padding: 6px;
+      border: none;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .form-save {
+      background: #17bf63;
+      color: white;
+    }
+
+    .form-save:hover {
+      background: #13a554;
+    }
+
+    .form-cancel {
+      background: #999;
+      color: white;
+    }
+
+    .form-cancel:hover {
+      background: #777;
+    }
+
+    .rule-help {
+      background: #fffacd;
+      border: 1px solid #f0e68c;
+      border-radius: 4px;
+      padding: 8px;
+      font-size: 11px;
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .rule-help code {
+      background: #fff;
+      padding: 2px 4px;
+      border-radius: 2px;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔗 Twitter Link Rewriter</h1>
+    <div class="subtitle">Configure how Twitter/X links are rewritten</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Rewrite Mode</div>
+    
+    <label class="option">
+      <input type="radio" name="mode" value="vxtwitter" id="mode-vxtwitter">
+      <div class="option-label">
+        <span class="option-title">vxTwitter</span>
+        <span class="option-description">Better embeds for Discord/Telegram</span>
+      </div>
+    </label>
+
+    <label class="option">
+      <input type="radio" name="mode" value="fxtwitter" id="mode-fxtwitter">
+      <div class="option-label">
+        <span class="option-title">fxTwitter</span>
+        <span class="option-description">Alternative embed service</span>
+      </div>
+    </label>
+
+    <label class="option">
+      <input type="radio" name="mode" value="nitter" id="mode-nitter">
+      <div class="option-label">
+        <span class="option-title">Nitter</span>
+        <span class="option-description">Privacy-friendly Twitter frontend</span>
+      </div>
+    </label>
+
+    <div class="input-group" id="nitter-instance-group" style="display: none;">
+      <label for="nitter-instance">Nitter Instance:</label>
+      <input type="text" id="nitter-instance" placeholder="nitter.net" value="nitter.net">
+    </div>
+
+    <label class="option">
+      <input type="radio" name="mode" value="clean" id="mode-clean">
+      <div class="option-label">
+        <span class="option-title">Clean URL</span>
+        <span class="option-description">Remove tracking parameters only</span>
+      </div>
+    </label>
+
+    <label class="option">
+      <input type="radio" name="mode" value="custom" id="mode-custom">
+      <div class="option-label">
+        <span class="option-title">Custom Rules</span>
+        <span class="option-description">Use your own rewrite rules</span>
+      </div>
+    </label>
+
+    <label class="option">
+      <input type="radio" name="mode" value="original" id="mode-original">
+      <div class="option-label">
+        <span class="option-title">Original</span>
+        <span class="option-description">Don't modify URLs</span>
+      </div>
+    </label>
+  </div>
+
+  <div class="section" id="custom-rules-section" style="display: none;">
+    <div class="section-title">
+      Custom Rewrite Rules
+      <button class="add-rule-button" id="add-rule-button">+ Add Rule</button>
+    </div>
+    
+    <div id="custom-rules-list"></div>
+    
+    <div class="rule-help">
+      <strong>Pattern examples:</strong><br>
+      • <code>https://{domain}</code> - Use {domain} for twitter.com or x.com<br>
+      • <code>/twitter\.com/g</code> - Regex pattern with flags<br>
+      <strong>Replacement examples:</strong><br>
+      • <code>https://nitter.net</code> - Simple domain swap<br>
+      • <code>$1custom.com$2</code> - Use $1, $2 for regex groups
+    </div>
+  </div>
+
+  <button class="save-button" id="save-button">Save Settings</button>
+
+  <div class="footer">
+    Copy links from Twitter/X share buttons
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
