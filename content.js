@@ -1,6 +1,9 @@
 // Content script for Twitter Link Rewriter
 // Intercepts copy events and rewrites Twitter/X URLs
 
+// Cross-browser API compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 console.log('Twitter Link Rewriter: Content script loaded');
 
 // Configuration for URL rewriting
@@ -11,7 +14,7 @@ let rewriteConfig = {
 };
 
 // Load configuration from storage
-chrome.storage.sync.get(['rewriteMode', 'nitterInstance', 'customRewrites'], (result) => {
+browserAPI.storage.sync.get(['rewriteMode', 'nitterInstance', 'customRewrites'], (result) => {
   if (result.rewriteMode) {
     rewriteConfig.mode = result.rewriteMode;
   }
@@ -24,7 +27,7 @@ chrome.storage.sync.get(['rewriteMode', 'nitterInstance', 'customRewrites'], (re
 });
 
 // Listen for storage changes
-chrome.storage.onChanged.addListener((changes, namespace) => {
+browserAPI.storage.onChanged.addListener((changes, namespace) => {
   if (namespace === 'sync') {
     if (changes.rewriteMode) {
       rewriteConfig.mode = changes.rewriteMode.newValue;

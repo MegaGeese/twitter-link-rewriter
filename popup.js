@@ -1,5 +1,8 @@
 // Popup script for Twitter Link Rewriter settings
 
+// Cross-browser API compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
 let customRewrites = [];
 
 // Load current settings when popup opens
@@ -38,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load settings from storage and update UI
  */
 function loadSettings() {
-  chrome.storage.sync.get(['rewriteMode', 'nitterInstance', 'customRewrites'], (result) => {
+  browserAPI.storage.sync.get(['rewriteMode', 'nitterInstance', 'customRewrites'], (result) => {
     const mode = result.rewriteMode || 'vxtwitter';
     const nitterInstance = result.nitterInstance || 'nitter.net';
     customRewrites = result.customRewrites || [];
@@ -79,7 +82,7 @@ function saveSettings() {
   const mode = selectedMode.value;
   const nitterInstance = document.getElementById('nitter-instance').value.trim() || 'nitter.net';
   
-  chrome.storage.sync.set({
+  browserAPI.storage.sync.set({
     rewriteMode: mode,
     nitterInstance: nitterInstance,
     customRewrites: customRewrites
