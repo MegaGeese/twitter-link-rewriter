@@ -135,7 +135,7 @@ function rewriteTwitterUrl(url) {
  */
 function getCurrentTwitterUrl() {
   // Try to get URL from the current page
-  const currentUrl = window.location.href;
+  const currentUrl =  window.getSelection().toString();
   
   // Check if we're on a tweet page
   if (currentUrl.match(/\/\/(twitter|x)\.com/)) {
@@ -180,14 +180,6 @@ document.addEventListener('copy', (e) => {
     // Only intercept if the "Copy link" button was recently clicked
     const timeSinceClick = Date.now() - copyLinkClickTime;
     if (!copyLinkButtonClicked || timeSinceClick > 500) {
-      return;
-    }
-    
-    // Get the current selection
-    const selection = window.getSelection().toString();
-    
-    // If there's a text selection, don't interfere
-    if (selection && selection.trim().length > 0) {
       return;
     }
     
