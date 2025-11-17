@@ -131,6 +131,11 @@ function renderCustomRules() {
     name.className = 'rule-name';
     name.textContent = rule.name;
     
+    const editBtn = document.createElement('button');
+    editBtn.className = 'rule-edit';
+    editBtn.textContent = 'Edit';
+    editBtn.addEventListener('click', () => showEditRuleForm(index));
+    
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'rule-delete';
     deleteBtn.textContent = 'Delete';
@@ -138,6 +143,7 @@ function renderCustomRules() {
     
     header.appendChild(toggle);
     header.appendChild(name);
+    header.appendChild(editBtn);
     header.appendChild(deleteBtn);
     
     const pattern = document.createElement('div');
@@ -227,6 +233,83 @@ function showAddRuleForm() {
 }
 
 /**
+ * Show form to edit an existing rule
+ */
+function showEditRuleForm(index) {
+  // Check if form already exists
+  if (document.querySelector('.rule-form')) {
+    return;
+  }
+  
+  const rule = customRewrites[index];
+  const ruleItems = document.querySelectorAll('.rule-item');
+  const ruleItem = ruleItems[index];
+  
+  if (!ruleItem) {
+    return;
+  }
+  
+  const formDiv = document.createElement('div');
+  formDiv.className = 'rule-form';
+  
+  // Create form groups
+  const nameGroup = document.createElement('div');
+  nameGroup.className = 'form-group';
+  const nameLabel = document.createElement('label');
+  nameLabel.textContent = 'Rule Name:';
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.id = 'edit-rule-name';
+  nameInput.value = rule.name;
+  nameGroup.appendChild(nameLabel);
+  nameGroup.appendChild(nameInput);
+  
+  const patternGroup = document.createElement('div');
+  patternGroup.className = 'form-group';
+  const patternLabel = document.createElement('label');
+  patternLabel.textContent = 'Pattern:';
+  const patternInput = document.createElement('input');
+  patternInput.type = 'text';
+  patternInput.id = 'edit-rule-pattern';
+  patternInput.value = rule.pattern;
+  patternGroup.appendChild(patternLabel);
+  patternGroup.appendChild(patternInput);
+  
+  const replacementGroup = document.createElement('div');
+  replacementGroup.className = 'form-group';
+  const replacementLabel = document.createElement('label');
+  replacementLabel.textContent = 'Replacement:';
+  const replacementInput = document.createElement('input');
+  replacementInput.type = 'text';
+  replacementInput.id = 'edit-rule-replacement';
+  replacementInput.value = rule.replacement;
+  replacementGroup.appendChild(replacementLabel);
+  replacementGroup.appendChild(replacementInput);
+  
+  const buttonsDiv = document.createElement('div');
+  buttonsDiv.className = 'form-buttons';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'form-save';
+  saveBtn.textContent = 'Save Changes';
+  saveBtn.addEventListener('click', () => saveEditedRule(index));
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'form-cancel';
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.addEventListener('click', cancelEditRule);
+  buttonsDiv.appendChild(saveBtn);
+  buttonsDiv.appendChild(cancelBtn);
+  
+  formDiv.appendChild(nameGroup);
+  formDiv.appendChild(patternGroup);
+  formDiv.appendChild(replacementGroup);
+  formDiv.appendChild(buttonsDiv);
+  
+  // Replace the rule item with the form
+  ruleItem.replaceWith(formDiv);
+  nameInput.focus();
+}
+
+/**
  * Save a new custom rule
  */
 function saveNewRule() {
@@ -246,8 +329,67 @@ function saveNewRule() {
     enabled: true
   });
   
-  cancelAddRule();
-  renderCustomRules();
+  // Save to storage
+  const selectedMode = document.querySelector('input[name="mode"]:checked');
+  const mode = selectedMode ? selectedMode.value : 'vxtwitter';
+  const nitterInstance = document.getElementById('nitter-instance').value.trim() || 'nitter.net';
+  
+  browserAPI.storage.sync.set({
+    rewriteMode: mode,
+    nitterInstance: nitterInstance,
+    customRewrites: customRewrites
+  }, () => {
+    cancelAddRule();
+    renderCustomRules();
+  });
+}
+
+/**
+ * Save an edited rule
+ */
+function saveEditedRule(index) {
+  const name = document.getElementById('edit-rule-name').value.trim();
+  const pattern = document.getElementById('edit-rule-pattern').value.trim();
+  const replacement = document.getElementById('edit-rule-replacement').value.trim();
+  
+  if (!name || !pattern || !replacement) {
+    alert('Please fill in all fields');
+    return;
+  }
+  
+  // Update the rule at the specified index
+  customRewrites[index] = {
+    name: name,
+    pattern: pattern,
+    replacement: replacement,
+    enabled: customRewrites[index].enabled // Preserve enabled state
+  };
+  
+  // Save to storage
+  const selectedMode = document.querySelector('input[name="mode"]:checked');
+  const mode = selectedMode ? selectedMode.value : 'vxtwitter';
+  const nitterInstance = document.getElementById('nitter-instance').value.trim() || 'nitter.net';
+  
+  browserAPI.storage.sync.set({
+    rewriteMode: mode,
+    nitterInstance: nitterInstance,
+    customRewrites: customRewrites
+  }, () => {
+    // Show success feedback in the form's save button
+    const saveBtn = document.querySelector('.rule-form .form-save');
+    if (saveBtn) {
+      const originalText = saveBtn.textContent;
+      saveBtn.textContent = '✓ Saved!';
+      saveBtn.style.background = '#17bf63';
+      
+      setTimeout(() => {
+        saveBtn.textContent = originalText;
+        saveBtn.style.background = '';
+      }, 2000);
+    }
+    
+    renderCustomRules();
+  });
 }
 
 /**
@@ -261,10 +403,28 @@ function cancelAddRule() {
 }
 
 /**
+ * Cancel editing a rule
+ */
+function cancelEditRule() {
+  renderCustomRules();
+}
+
+/**
  * Toggle a rule's enabled state
  */
 function toggleRule(index) {
   customRewrites[index].enabled = !customRewrites[index].enabled;
+  
+  // Save to storage immediately
+  const selectedMode = document.querySelector('input[name="mode"]:checked');
+  const mode = selectedMode ? selectedMode.value : 'vxtwitter';
+  const nitterInstance = document.getElementById('nitter-instance').value.trim() || 'nitter.net';
+  
+  browserAPI.storage.sync.set({
+    rewriteMode: mode,
+    nitterInstance: nitterInstance,
+    customRewrites: customRewrites
+  });
 }
 
 /**
@@ -273,7 +433,19 @@ function toggleRule(index) {
 function deleteRule(index) {
   if (confirm(`Delete rule "${customRewrites[index].name}"?`)) {
     customRewrites.splice(index, 1);
-    renderCustomRules();
+    
+    // Save to storage immediately
+    const selectedMode = document.querySelector('input[name="mode"]:checked');
+    const mode = selectedMode ? selectedMode.value : 'vxtwitter';
+    const nitterInstance = document.getElementById('nitter-instance').value.trim() || 'nitter.net';
+    
+    browserAPI.storage.sync.set({
+      rewriteMode: mode,
+      nitterInstance: nitterInstance,
+      customRewrites: customRewrites
+    }, () => {
+      renderCustomRules();
+    });
   }
 }
 
